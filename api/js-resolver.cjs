@@ -13,19 +13,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-const jsResolver = (path, options) => {
-  const jsExtRegex = /\.js$/i;
-  const resolver = options.defaultResolver;
-  if (jsExtRegex.test(path) && !options.basedir.includes('node_modules') && !path.includes('node_modules')) {
-    const newPath = path.replace(jsExtRegex, '.ts');
+
+const resolveModule = (request, config) => {
+  const isJavaScript = /\.js$/i.test(request);
+  const isExternal = request.includes("node_modules") ||
+    config.basedir.includes("node_modules");
+
+  if (isJavaScript && !isExternal) {
+    const sourceFile = request.replace(/\.js$/i, ".ts");
+
     try {
-      return resolver(newPath, options);
+      return config.defaultResolver(sourceFile, config);
     } catch {
-      // use default resolver
+      // Continue with the original request when no TypeScript match exists.
     }
   }
 
-  return resolver(path, options);
+  return config.defaultResolver(request, config);
 };
 
-module.exports = jsResolver;
+module.exports = resolveModule;
+```
