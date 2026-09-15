@@ -1,42 +1,45 @@
-// Private Medical Research Data Exchange Witness Provider
-// Copyright (C) Midnight Foundation
 
-import { Ledger } from "./managed/bboard/contract/index.js";
+import { Ledger } from "./managed/credifi/contract/index.js";
 import { WitnessContext } from "@midnight-ntwrk/midnight-js-protocol/compact-runtime";
 
-export type BBoardPrivateState = {
+export type CrediFiPrivateState = {
   readonly secretKey: Uint8Array;
-  readonly medicalCredentialSecret: Uint8Array;
-  readonly patientRecordKey: Uint8Array;
+  readonly financialCredentialSecret: Uint8Array;
+  readonly borrowerRecordKey: Uint8Array;
 };
 
-export const createBBoardPrivateState = (
+export function createCrediFiPrivateState(
   secretKey: Uint8Array,
-  medicalCredentialSecret?: Uint8Array,
-  patientRecordKey?: Uint8Array,
-): BBoardPrivateState => ({
-  secretKey,
-  medicalCredentialSecret: medicalCredentialSecret ?? secretKey,
-  patientRecordKey: patientRecordKey ?? secretKey,
-});
+  financialCredentialSecret?: Uint8Array,
+  borrowerRecordKey?: Uint8Array,
+): CrediFiPrivateState {
+  return {
+    secretKey,
+    financialCredentialSecret: financialCredentialSecret ?? secretKey,
+    borrowerRecordKey: borrowerRecordKey ?? secretKey,
+  };
+}
 
 export const witnesses = {
-  localSecretKey: ({
-    privateState,
-  }: WitnessContext<Ledger, BBoardPrivateState>): [
-    BBoardPrivateState,
-    Uint8Array,
-  ] => [privateState, privateState.secretKey],
-  medicalCredentialSecret: ({
-    privateState,
-  }: WitnessContext<Ledger, BBoardPrivateState>): [
-    BBoardPrivateState,
-    Uint8Array,
-  ] => [privateState, privateState.medicalCredentialSecret],
-  patientRecordKey: ({
-    privateState,
-  }: WitnessContext<Ledger, BBoardPrivateState>): [
-    BBoardPrivateState,
-    Uint8Array,
-  ] => [privateState, privateState.patientRecordKey],
+  localSecretKey: (
+    context: WitnessContext<Ledger, CrediFiPrivateState>,
+  ): [CrediFiPrivateState, Uint8Array] => [
+    context.privateState,
+    context.privateState.secretKey,
+  ],
+
+  financialCredentialSecret: (
+    context: WitnessContext<Ledger, CrediFiPrivateState>,
+  ): [CrediFiPrivateState, Uint8Array] => [
+    context.privateState,
+    context.privateState.financialCredentialSecret,
+  ],
+
+  borrowerRecordKey: (
+    context: WitnessContext<Ledger, CrediFiPrivateState>,
+  ): [CrediFiPrivateState, Uint8Array] => [
+    context.privateState,
+    context.privateState.borrowerRecordKey,
+  ],
 };
+```
