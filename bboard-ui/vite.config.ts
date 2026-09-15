@@ -1,105 +1,113 @@
-// This file is part of midnightntwrk/example-counter.
-// Copyright (C) Midnight Foundation
+
+// CrediFi frontend build configuration
 // SPDX-License-Identifier: Apache-2.0
-// Licensed under the Apache License, Version 2.0 (the "License");
-// You may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
 
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import wasm from 'vite-plugin-wasm';
-import topLevelAwait from 'vite-plugin-top-level-await';
-// import { nodePolyfills } from 'vite-plugin-node-polyfills';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import wasm from "vite-plugin-wasm";
+import topLevelAwait from "vite-plugin-top-level-await";
 
-// https://vitejs.dev/config/
 export default defineConfig({
-  cacheDir: './.vite',
+  cacheDir: ".vite",
+
   build: {
-    target: 'esnext',
+    target: "esnext",
     minify: false,
+
     rollupOptions: {
       output: {
-        manualChunks: (id) => {
-          // Separate chunk for WASM modules to avoid top-level await issues
-          if (id.includes('onchain-runtime-v3')) return 'wasm';
+        manualChunks(moduleId) {
+          return moduleId.includes("onchain-runtime-v3") ? "midnight-wasm" : undefined;
         },
       },
+
+      commonjsOptions: {
+        transformMixedEsModules: true,
+        extensions: [".js", ".cjs"],
+        ignoreDynamicRequires: true,
       },
-    commonjsOptions: {
-      // Transform CommonJS to ESM more aggressively
-      transformMixedEsModules: true,
-      extensions: ['.js', '.cjs'],
-      // Needed for Node.js modules
-      ignoreDynamicRequires: true,
     },
   },
+
   plugins: [
     react(),
-    // Configure WASM plugin with more options
     wasm(),
+
     topLevelAwait({
-      // Be more permissive with top-level await
-      promiseExportName: '__tla',
-      promiseImportName: (i) => `__tla_${i}`,
+      promiseExportName: "__tla",
+      promiseImportName: (index) => `__tla_${index}`,
     }),
-    // Custom resolver for handling problematic modules
+
     {
-      name: 'wasm-module-resolver',
+      name: "credifi-wasm-resolver",
+
       resolveId(source, importer) {
-        // Special handling for the problematic module
+        const runtimePackage = "@midnight-ntwrk/onchain-runtime-v3";
+        const compactRuntime = "@midnight-ntwrk/compact-runtime";
+
         if (
-          source === '@midnight-ntwrk/onchain-runtime-v3' &&
-          importer &&
-          importer.includes('@midnight-ntwrk/compact-runtime')
+          source === runtimePackage &&
+          importer?.includes(compactRuntime)
         ) {
-          // Force dynamic import for this case
           return {
             id: source,
             external: false,
             moduleSideEffects: true,
           };
         }
+
         return null;
       },
     },
   ],
+
   optimizeDeps: {
     rolldownOptions: {
-      target: 'esnext',
-      supported: { 'top-level-await': true },
-      // Configure ESBuild to handle Node.js-style modules
-      platform: 'browser',
-      format: 'esm',
+      target: "esnext",
+      supported: {
+        "top-level-await": true,
+      },
+      platform: "browser",
+      format: "esm",
+
       loader: {
-        '.wasm': 'binary',
+        ".wasm": "binary",
       },
     },
-    // Explicitly include these packages for pre-bundling, but force ESM
-    include: ['@midnight-ntwrk/compact-runtime'],
-    // Exclude WASM files and modules with top-level await from optimization
+
+    include: [
+      "@midnight-ntwrk/compact-runtime",
+    ],
+
     exclude: [
-      '@midnight-ntwrk/onchain-runtime-v3',
-      '@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm_bg.wasm',
-      '@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm.js',
+      "@midnight-ntwrk/onchain-runtime-v3",
+      "@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm_bg.wasm",
+      "@midnight-ntwrk/onchain-runtime-v3/midnight_onchain_runtime_wasm.js",
     ],
   },
+
   define: {},
+
   checks: {
     importIsUndefined: false,
     pluginTimings: false,
   },
-  // Add specific import configuration for more control
+
   resolve: {
-    // Ensure WASM files are loaded properly
-    extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.wasm'],
-    mainFields: ['browser', 'module', 'main'],
+    extensions: [
+      ".mjs",
+      ".js",
+      ".ts",
+      ".jsx",
+      ".tsx",
+      ".json",
+      ".wasm",
+    ],
+
+    mainFields: [
+      "browser",
+      "module",
+      "main",
+    ],
   },
 });
