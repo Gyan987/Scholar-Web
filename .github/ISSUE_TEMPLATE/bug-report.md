@@ -1,17 +1,42 @@
 ---
-name: Bug report
-about: Submit a bug report
-title: ""
-labels: example-bboard, public
+
+name: CrediFi Bug Report
+about: Report an issue or unexpected behavior in CrediFi
+title: "[BUG] "
+labels: bug, credifi
 assignees: ""
----
+-------------
 
-Bug Report: Provide detailed information about the issue, including steps to reproduce it, expected behavior, and actual behaviour, screenshots or any other relevant information
+## Bug Report
 
-#### Describe what the problem is
+Please provide enough information to help us understand, reproduce, and resolve the issue.
 
-#### What should be the expected behavior or results?
+### Problem Description
 
-#### What was the actual behavior or results?
+Describe the issue clearly. Mention what you were trying to do and where the problem occurred.
 
-#### Provide any other clarifying details that would help in reproducing or identifying the issue
+### Steps to Reproduce
+
+1. Go to the affected feature or page.
+2. Perform the required action.
+3. Observe the unexpected result.
+4. Mention any additional steps needed to trigger the issue.
+
+### Expected Result
+
+Explain what you expected CrediFi to do after following the steps above.
+
+### Actual Result
+
+Describe what actually happened, including any error messages or unexpected behavior.
+
+### Additional Information
+
+Add anything else that may help with debugging, such as:
+
+* Screenshots or screen recordings
+* Browser and operating system
+* Console or terminal errors
+* Relevant transaction or contract information
+* Network/environment used
+* Any other useful reproduction details
